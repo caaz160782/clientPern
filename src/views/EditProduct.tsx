@@ -1,7 +1,18 @@
-import { Link,Form, useActionData, ActionFunctionArgs,redirect,useLocation } from "react-router-dom"
+import { Link,Form, useActionData, ActionFunctionArgs,redirect, LoaderFunctionArgs, useLoaderData,/*useLocation*/ } from "react-router-dom"
 import ErrorMessage from "../Components/ErrorMessage";
-import { addProduct } from "../services/ProductService";
+import { addProduct, getProductByID } from "../services/ProductService";
+import { Product } from "../types";
 
+export async function loader({params} : LoaderFunctionArgs) {
+  if(params.id !== undefined){
+    const product = await getProductByID(+params.id);
+    if(!product){
+     // throw new Response('',{status:404, statusText:'no encontrado'})
+     return redirect('/')
+    }
+    return product
+  }  
+}
 
 export async function action({request}:ActionFunctionArgs) {
   const data =Object.fromEntries(await request.formData());
@@ -19,9 +30,7 @@ export async function action({request}:ActionFunctionArgs) {
 const EditProduct = () => {
 
   const error=useActionData() as string;
-  const {state} =useLocation();
-
-  console.log(state)
+  const product = useLoaderData() as Product
   
   return (
     <>
@@ -53,7 +62,7 @@ const EditProduct = () => {
             className="mt-2 block w-full p-3 bg-gray-50"
             placeholder="Nombre del Producto"
             name="name"
-            defaultValue={state.product.name}
+           defaultValue={product.name}
         />
      </div>
       <div className="mb-4">
@@ -67,13 +76,13 @@ const EditProduct = () => {
             className="mt-2 block w-full p-3 bg-gray-50"
             placeholder="Precio Producto. ej. 200, 300"
             name="price"
-            defaultValue={state.product.price}
+            defaultValue={product.price}
         />
       </div>
       <input
         type="submit"
         className="mt-5 w-full bg-indigo-600 p-2 text-white font-bold text-lg cursor-pointer rounded"
-        value="Registrar Producto"
+        value="Editar Producto"
         />
     </Form>
     </>

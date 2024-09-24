@@ -68,9 +68,8 @@ export async function updateProduct(data:ProductData, id:Product['id']) {
                                        price: parse(NumberSchema,data.price),
                                        availability:data.availability==="true"?true:false
                                    });
-   console.log(result)                                   
+   
    if(result.success){
-    
        const url=`${import.meta.env.VITE_API_URL}/products/${id}`
        await axios.patch(url,{name: result.output.name,
                              price: result.output.price,
@@ -83,3 +82,18 @@ export async function updateProduct(data:ProductData, id:Product['id']) {
    console.log(error)
   }
 }
+
+export async function deleteProductByID(id:Product['id']) {
+  try {
+    const url=`${import.meta.env.VITE_API_URL}/products/${id}`
+    const {data} = await axios.delete(url)      
+    const result = safeParse(ProducSchema,data.payload)
+    if(result.success){
+      return result.output
+    }else{
+      throw new Error('Error ...')
+    }     
+  } catch (error) {
+   console.log(error)
+  }
+} 
